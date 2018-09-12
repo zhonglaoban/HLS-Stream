@@ -1,6 +1,6 @@
 # 使用AVPlayerViewController在线、离线播放hls
 
-这篇文章演示了如何使用AVPlayerViewController播放hls，并且涉及了如何开始、暂停，如何下载、存储一个hls的播放。
+这篇文章演示了如何使用AVPlayerViewController播放hls，并且涉及了如何开始、暂停，如何下载、存储一个hls的播放。
 
 ## 使用这个示例
 
