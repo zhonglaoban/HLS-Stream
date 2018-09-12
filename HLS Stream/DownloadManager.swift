@@ -23,24 +23,6 @@ class DownloadManager:NSObject {
         downloadSession = AVAssetDownloadURLSession(configuration: config, assetDownloadDelegate: self, delegateQueue: OperationQueue.main)
     }
     
-    func setupAssetDownload(_ url: URL) {
-//        let options = [AVURLAssetAllowsCellularAccessKey: false]
-        let asset = AVURLAsset(url: url)
-        let downloadTask = downloadSession.makeAssetDownloadTask(asset: asset,
-                                                                 assetTitle: "Test Download",
-                                                                 assetArtworkData: nil,
-                                                                 options: nil)
-//        let preferredMediaSelection = asset.preferredMediaSelection
-//        let downloadTask = downloadSession.aggregateAssetDownloadTask(with: asset,
-//                                                           mediaSelections: [preferredMediaSelection],
-//                                                           assetTitle:"Test",
-//                                                           assetArtworkData: nil,
-//                                                           options:
-//            [AVAssetDownloadTaskMinimumRequiredMediaBitrateKey: 265_000])
-        
-        downloadTask?.resume()
-    }
-    
     func restorePendingDownloads() {
         
         downloadSession.getAllTasks { tasksArray in
@@ -53,35 +35,12 @@ class DownloadManager:NSObject {
         }
     }
     
-    func playOfflineAsset() -> AVURLAsset? {
-        guard let assetPath = UserDefaults.standard.value(forKey: "assetPath") as? String else {
-            
-            return nil
-        }
-        let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-        let assetURL = baseURL.appendingPathComponent(assetPath)
-        let asset = AVURLAsset(url: assetURL)
-        if let cache = asset.assetCache, cache.isPlayableOffline {
-            return asset
-            
-        } else {
-            return  nil
-            
-        }
-    }
-    
-    func getPath() -> String {
-        return UserDefaults.standard.value(forKey: "assetPath") as? String ?? ""
-    }
-    
-    func deleteOfflineAsset() {
+    func deleteOfflineAsset(_ assetKey:String) {
         do {
             let userDefaults = UserDefaults.standard
-            if let assetPath = userDefaults.value(forKey: "assetPath") as? String {
-                let baseURL = URL(fileURLWithPath: NSHomeDirectory())
-                let assetURL = baseURL.appendingPathComponent(assetPath)
-                try FileManager.default.removeItem(at: assetURL)
-                userDefaults.removeObject(forKey: "assetPath")
+            if let assetPath = userDefaults.url(forKey: assetKey) {
+                try FileManager.default.removeItem(at: assetPath)
+                userDefaults.removeObject(forKey: assetKey)
             }
         } catch {
             print("An error occured deleting offline asset: \(error)")
@@ -158,7 +117,6 @@ extension DownloadManager: AVAssetDownloadDelegate {
             debugPrint("Task completed: \(task), error: \(String(describing: error))")
             return
         }
-        guard let task = task as? AVAssetDownloadTask else { return }
         
         print("DOWNLOAD: FINISHED")
     }
